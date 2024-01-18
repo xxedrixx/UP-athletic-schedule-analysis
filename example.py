@@ -21,14 +21,24 @@ from streamlit_folium import folium_static
 # %% Untitled.ipynb 1
 st.set_page_config(layout="wide")
 
+cols = st.columns(6)
+total_games_placeholder = cols[0].metric(label="Total Game", value=None)
+home_games_placeholder = cols[1].metric(label="Home Game", value=None)
+away_games_placeholder = cols[2].metric(label="Away Game", value=None)
+class_day_placeholder = cols[3].metric(label="Number of class day missed", value=None)
+monday_placeholder = cols[4].metric(label="Class missed on monday", value=None)
+friday_placeholder = cols[5].metric(label="Class missed on friday", value=None)
+
 c1, c2 = st.columns(2)
 # Create a Streamlit file uploader
 
 with c1:
     schedule = st.file_uploader("Upload Schedule as CSV or EXCEL", type=["csv", "xlsx"])
-    # Check if a file was uploaded
+with c2:
+    travel_period = st.file_uploader("Upload travel period as CSV or EXCEL", type=["csv", "xlsx"])
     
     
+with c1:  
     if schedule is not None:
         file_extension = schedule.name.split(".")[-1]
         
@@ -72,9 +82,8 @@ with c1:
 
 
         # # PRINT
-        with st.expander("See DataFrame"):
+        with st.expander("See DataFrame..."):
             # Display the DataFrame
-            st.write("Uploaded DataFrame:")
             st.dataframe(df)
 
 
@@ -85,6 +94,11 @@ with c1:
         home_count = len(home)
         away_count = len(away)
         total_games = home_count + away_count
+        
+        # Update metric value
+        total_games_placeholder.metric(label="Total Game", value=total_games)
+        home_games_placeholder.metric(label="Home Game", value=home_count)
+        away_games_placeholder.metric(label="Away Game", value=away_count)
 
         labels = [f'Home Games: {home_count}', f'Away Games: {away_count}']
         sizes = [home_count, away_count]
@@ -102,14 +116,16 @@ with c1:
         ax.text(0.5, 0, f'Total Games: {total_games}', fontsize=12, color='black',
                  fontweight='bold', ha='center', va='center', transform=ax.transAxes)
 
-        # Display the plot using st.pyplot
-        st.pyplot(fig)
+        with st.expander("Games"):
+            # Display the plot using st.pyplot
+            st.pyplot(fig)
 
         # # CITY
         city_most_game_away = df[df['City'] != "Great Falls"]
         city_most_game_away = city_most_game_away['City'].value_counts().reset_index()
         city_most_game_away.columns = ['City', 'Count']
-        city_most_game_away
+        with st.expander("Most visited cities"):
+            city_most_game_away
 
         # List of cities
         cities = df['Location']
@@ -135,6 +151,7 @@ with c1:
             popup_text = f"<b>{city}</b>"  # Customize the popup content here
             folium.Marker(location=[lat, lon], tooltip=popup_text).add_to(m)
 
+        
         # Display the map
         folium_static(m)
     
@@ -176,10 +193,7 @@ with st.sidebar:
     formatted_spring_end = pd.to_datetime(spring_end)
 
     
-    
 with c2:
-    travel_period = st.file_uploader("Upload travel period as CSV or EXCEL", type=["csv", "xlsx"])
-    
     if travel_period is not None:
         file_extension = travel_period.name.split(".")[-1]
         
@@ -199,8 +213,8 @@ with c2:
         # Add a new column 'Weekday' containing the weekday names to the copied DataFrame
         df['Weekday'] = df['AwayDate'].apply(get_weekday_name)
 
-        st.write("Uploaded DataFrame:")
-        st.dataframe(df)
+        with st.expander("See dataframe..."):
+            st.dataframe(df)
 
         days_traveled_semester = df[(df['AwayDate'] >= formatted_fall_start) & (df['AwayDate'] <= formatted_fall_end) |
                              (df['AwayDate'] >= formatted_spring_start) & (df['AwayDate'] <= formatted_spring_end)]
@@ -233,8 +247,9 @@ with c2:
         ax.text(0.5, 0, f'Total days traveled: {total_travel} days', fontsize=12, color='black',
                  fontweight='bold', ha='center', va='center', transform=plt.gca().transAxes)
 
-        # Display the plot in Streamlit
-        st.pyplot(fig)
+        with st.expander("Days Traveled"):
+            # Display the plot in Streamlit
+            st.pyplot(fig)
 
         if not days_traveled_semester.empty:
             ## TRAVEL DURING SEMESTER
@@ -259,14 +274,20 @@ with c2:
                      fontweight='bold', ha='center', va='center', transform=plt.gca().transAxes)
 
 
-            # Display the plot in Streamlit
-            st.pyplot(fig)
+            with st.expander("Days Traveled during semesters"):
+                # Display the plot in Streamlit
+                st.pyplot(fig)
 
 
             ## NUMBER OF CLASS DAY TRAVELED
             friday = friday_travel
             mon_to_thu = monday_to_thursday_travel
             total_class_days = class_day_travel
+            
+            # Update metric value
+            class_day_placeholder.metric(label="Number of class day missed", value=total_class_days)
+            monday_placeholder.metric(label="Class missed on monday", value=mon_to_thu)
+            friday_placeholder.metric(label="Class missed on friday", value=friday)
 
             labels = [f'Number of days traveled \n that occurs on Friday: {friday}', f'Number of days traveled \n that occurs Monday-Thursday: {mon_to_thu}']
             sizes = [friday, mon_to_thu]
@@ -284,8 +305,9 @@ with c2:
             ax.text(0.5, 0, f'Total class days traveleded: {total_class_days} days', fontsize=12, color='black',
                      fontweight='bold', ha='center', va='center', transform=plt.gca().transAxes)
 
-            # Display the plot in Streamlit
-            st.pyplot(fig)
+            with st.expander("Class Day Traveled"):
+                # Display the plot in Streamlit
+                st.pyplot(fig)
         else:
             st.error("Enter valid date")
             st.warning("No class day missed because of breaks")
