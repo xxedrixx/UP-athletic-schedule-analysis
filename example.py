@@ -5,6 +5,7 @@ __all__ = []
 
 # %% Untitled.ipynb 0
 from datetime import datetime
+from datetime import timedelta
 import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
 import pandas as pd
@@ -18,6 +19,7 @@ import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import folium_static
 from streamlit_option_menu import option_menu
+from bs4 import BeautifulSoup
 
 # %% Untitled.ipynb 1
 st.set_page_config(layout="wide")
@@ -25,41 +27,41 @@ st.set_page_config(layout="wide")
 
 #sidebar
 with st.sidebar:
-        link_date = "https://docs.google.com/spreadsheets/d/1FiixrbbdR_8fsHtxwRynmj1cXT0e67or/edit?usp=sharing&ouid=101732481532297287492&rtpof=true&sd=true"
-        this_date = "this"
-        text1 = "The files to be uploaded need to look exactly like "
-        text2 = " for schedule and like "
-        link_schedule = "https://docs.google.com/spreadsheets/d/1BMSWHCWxgj6D3PplQZpFQHMmWYQtcANB/edit?usp=sharing&ouid=101732481532297287492&rtpof=true&sd=true"
-        this_schedule = "this "
-        text3 = " for date."
-        line = "\n"
-        text4 = "You can download the templates below."
-        st.write(f"{text1}[{this_schedule}]({link_schedule}){text2}[{this_date}]({link_date}){text3}{line}{line}{text4}")
+    link_date = "https://docs.google.com/spreadsheets/d/1FiixrbbdR_8fsHtxwRynmj1cXT0e67or/edit?usp=sharing&ouid=101732481532297287492&rtpof=true&sd=true"
+    this_date = "this"
+    text1 = "The files to be uploaded need to look exactly like "
+    text2 = " for schedule and like "
+    link_schedule = "https://docs.google.com/spreadsheets/d/1BMSWHCWxgj6D3PplQZpFQHMmWYQtcANB/edit?usp=sharing&ouid=101732481532297287492&rtpof=true&sd=true"
+    this_schedule = "this "
+    text3 = " for date."
+    line = "\n"
+    text4 = "You can download the templates below."
+    st.write(f"{text1}[{this_schedule}]({link_schedule}){text2}[{this_date}]({link_date}){text3}{line}{line}{text4}")
 
-        schedule_path = "Copy.xlsx"
-        st.sidebar.download_button("Download Schedule Template", schedule_path)
+    schedule_path = "Copy.xlsx"
+    st.sidebar.download_button("Download Schedule Template", schedule_path)
 
-        date_path = "date.xlsx"
-        st.sidebar.download_button("Download Date Template", date_path)
+    date_path = "date.xlsx"
+    st.sidebar.download_button("Download Date Template", date_path)
 
-        fall_start = st.date_input("Fall start date", datetime.today())
-        # Convert the selected date to the desired format
-        formatted_fall_start = pd.to_datetime(fall_start)
-
-
-        fall_end = st.date_input("Fall end date", datetime.today())
-        # Convert the selected date to the desired format
-        formatted_fall_end = pd.to_datetime(fall_end)
+    fall_start = st.date_input("Fall start date", datetime.today())
+    # Convert the selected date to the desired format
+    formatted_fall_start = pd.to_datetime(fall_start)
 
 
-        spring_start = st.date_input("Spring start date", datetime.today())
-        # Convert the selected date to the desired format
-        formatted_spring_start = pd.to_datetime(spring_start)
+    fall_end = st.date_input("Fall end date", datetime.today())
+    # Convert the selected date to the desired format
+    formatted_fall_end = pd.to_datetime(fall_end)
 
 
-        spring_end = st.date_input("Spring end date", datetime.today())
-        # Convert the selected date to the desired format
-        formatted_spring_end = pd.to_datetime(spring_end)
+    spring_start = st.date_input("Spring start date", datetime.today())
+    # Convert the selected date to the desired format
+    formatted_spring_start = pd.to_datetime(spring_start)
+
+
+    spring_end = st.date_input("Spring end date", datetime.today())
+    # Convert the selected date to the desired format
+    formatted_spring_end = pd.to_datetime(spring_end)
         
 
 selected = option_menu(
@@ -300,7 +302,6 @@ def day_func():
 
 if selected == "Upload Files":
     c1, c2 = st.columns(2)
-
     with c1:
         schedule = st.file_uploader("Upload Schedule as CSV or EXCEL", type=["csv", "xlsx"])
     with c2:
@@ -318,8 +319,6 @@ if selected == "Upload Files":
 
             game_func()
 
-    
-
 
     with c2:
         if travel_period is not None:
@@ -332,4 +331,105 @@ if selected == "Upload Files":
 
             day_func()
 else:
-    input_link = st.text_input("Paste link here")
+    ## WEB SCRAPING
+    url = st.text_input("Paste link here")
+    input_year = int (st.number_input("Academic year (Fall)", min_value = 2023))
+    c1, c2 = st.columns(2)
+    if url:
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Find elements related to Date
+            date_elements = soup.find_all(class_='sidearm-schedule-game-opponent-date flex-item-1')
+
+            Date = []
+            for element in date_elements:
+                spans_inside_element = element.find_all('span')
+                span_text = spans_inside_element[0].text.strip() if spans_inside_element else ''
+                if span_text:
+                    Date.append(span_text)
+                else:
+                    second_span_text = spans_inside_element[1].text.strip() if len(spans_inside_element) > 1 else ''
+                    Date.append(second_span_text)
+
+            # Find elements related to Location
+            location_elements = soup.find_all(class_='x-large-4 hide-on-large-down columns')
+
+            Location = []
+            for element in location_elements:
+                spans_inside_element = element.find_all('span')
+                span_text = spans_inside_element[0].text.strip() if spans_inside_element else ''
+                if span_text:
+                    Location.append(span_text)
+                else:
+                    second_span_text = spans_inside_element[1].text.strip() if len(spans_inside_element) > 1 else ''
+                    Location.append(second_span_text)
+
+
+            # Create a DataFrame containing both Date and Location
+            df = pd.DataFrame({'Date': Date, 'Location': Location})
+            df['Date'] = df['Date'].str.split(' \(').str[0]
+        
+                
+            ## ADD YEAR 
+            #'''Because the date from the website do not have year, this is to make every date after december 31st to be input_year+1'''
+            
+            start_date = datetime.strptime('08-01', '%m-%d')  # August 1st
+            end_date = datetime.strptime('12-31', '%m-%d')  # December 31st
+
+            # Convert DataFrame date strings to datetime objects with a default year
+            df['Date'] = pd.to_datetime(df['Date'], format="%b %d", errors='coerce').apply(lambda x: x.replace(year=input_year))
+
+            # Replace out-of-range dates with NaT
+            for index, row in df.iterrows():
+                if not (start_date.replace(year=input_year) <= row['Date'] <= end_date.replace(year=input_year)):
+                    df.at[index, 'Date'] += pd.offsets.DateOffset(years=1)
+
+            with c1:
+                game_func()
+                
+                
+            ## ESTIMATION TRAVEL PERIOD BASED ON DISTANCE
+            df = df[df["Distance in mile"] != 0.0]
+            df['Date'] = pd.to_datetime(df['Date'])
+
+            # Sorting the dataframe by Date
+            df = df.sort_values('Date').reset_index(drop=True)
+
+            # Initialize a list to store away duration dates
+            away_dates = []
+
+            # Calculate away duration based on the updated logic
+            for i in range(len(df)):
+                current_date = df.loc[i, 'Date']
+                departure_date = current_date - timedelta(days=1)
+                arrival_date = current_date + timedelta(days=1)
+
+                if df.loc[i, 'Distance in mile'] < 250:
+                    away_dates.append(current_date)
+                else:
+                    if i > 0 and (current_date - df.loc[i - 1, 'Date']).days <= 2:
+                        # Check if the previous game was less than 250 miles away
+                        if df.loc[i - 1, 'Distance in mile'] < 250:
+                            # If it was, don't pop the last date
+                            departure_date = current_date - timedelta(days=1)
+                        else:
+                            # If it wasn't, pop the last date
+                            away_dates.pop()
+                            departure_date = away_dates.pop()
+                    else:
+                        # If there are more than 2 days between games, don't pop the last date
+                        departure_date = current_date - timedelta(days=1)
+
+                    # Add departure, all dates in between, and arrival to the list
+                    for d in pd.date_range(departure_date, arrival_date):
+                        away_dates.append(d)
+
+            # Create a dataframe with away duration dates
+            days_traveled = pd.DataFrame({'AwayDate': away_dates})
+            days_traveled = days_traveled.drop_duplicates().sort_values('AwayDate').reset_index(drop=True)
+            
+            with c2:
+                df=days_traveled
+                day_func()
