@@ -1,6 +1,7 @@
 streamlit
 streamlit-jupyter
 pandas
+openpyxl
 numpy
 requests
 geopy
