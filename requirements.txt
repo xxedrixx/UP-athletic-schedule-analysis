@@ -1,3 +1,11 @@
-streamlit_jupyter
-streamlit_folium
-streamlit_option_menu
+streamlit
+streamlit-jupyter
+pandas
+numpy
+requests
+geopy
+matplotlib
+folium
+streamlit-folium
+streamlit-option-menu
+beautifulsoup4
