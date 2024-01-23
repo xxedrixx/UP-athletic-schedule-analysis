@@ -24,8 +24,6 @@ from bs4 import BeautifulSoup
 # %% schedule.ipynb 1
 st.set_page_config(layout="wide")
 
-st.title("UP Athletic")
-
 #sidebar
 with st.sidebar:
     link_date = "https://docs.google.com/spreadsheets/d/1FiixrbbdR_8fsHtxwRynmj1cXT0e67or/edit?usp=sharing&ouid=101732481532297287492&rtpof=true&sd=true"
