@@ -36,14 +36,8 @@ with st.sidebar:
     this_schedule = "this "
     text3 = " for date."
     line = "\n"
-    text4 = "You can download the templates below."
+    text4 = "You can download the templates above."
     st.write(f"{text1}[{this_schedule}]({link_schedule}){text2}[{this_date}]({link_date}){text3}{line}{line}{text4}")
-
-    schedule_path = "Copy.xlsx"
-    st.sidebar.download_button("Download Schedule Template", schedule_path)
-
-    date_path = "date.xlsx"
-    st.sidebar.download_button("Download Date Template", date_path)
 
     fall_start = st.date_input("Fall start date", datetime.today())
     # Convert the selected date to the desired format
