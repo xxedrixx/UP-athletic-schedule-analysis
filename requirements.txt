@@ -1,0 +1,12 @@
+streamlit
+streamlit-jupyter
+pandas
+openpyxl
+numpy
+requests
+geopy
+matplotlib
+folium
+streamlit-folium
+streamlit-option-menu
+beautifulsoup4
