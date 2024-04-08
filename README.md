@@ -35,6 +35,7 @@ The files required for upload can be accessed at the top of the side bar. Downlo
 
 **Note:** Ensure that the **column names** remain unchanged for accurate processing.
 
+
 **2. Adjust Academic Calendar Dates**
 In the side bar, adjust dates based on the academic calendar:
 
@@ -44,6 +45,7 @@ In the side bar, adjust dates based on the academic calendar:
 * Fall end date = End date of the fall semester
 * Spring start date = Start date of the spring semester
 * Spring end date = End date of the spring semester
+
 
 **3. Upload Files**
 Use the left file uploader for Schedule and the right file uploader for Away Date. Results will be displayed after a few minutes.
@@ -100,7 +102,7 @@ distance from the team's city, and estimates away dates based on distance. Citie
 
 
 ## Limitations
-The limitations mainly affect the Estimate option:
+The limitations mainly affect the Estimate option: <br>
 1 .  Distance between cities is an estimate based on a straight line with a 20% margin.
 
 2. Estimated away dates are not accurate due to factors like weather and transportation
